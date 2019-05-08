@@ -17,7 +17,7 @@ Sorin Primo encodes all of this functionality in `lib/sorin_primo.ex`.
 def deps do
   [
     ...,
-    {:sorin_primo, path: "extensions/sorin_primo"},
+    {:sorin_primo, git: "https://github.com/seulibrary/Sorin-Primo.git"},
   ]
 end
 ```
