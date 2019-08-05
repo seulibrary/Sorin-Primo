@@ -1,5 +1,4 @@
 defmodule SorinPrimo do
-
   @doc """
   High-level function for querying Primo's Brief Search API.
 
@@ -88,9 +87,9 @@ defmodule SorinPrimo do
       "availability_status" => result["delivery"]["bestlocation"]["availabilityStatus"],
       "call_number"         => result["delivery"]["bestlocation"]["callNumber"],
       "catalog_url"         => catalog_url,
-      "contributor"         => parse_string(result["pnx"]["display"]["contributor"]),
+      "contributor"         => result["pnx"]["addata"]["addau"],
       "coverage"            => nil,
-      "creator"             => parse_string(result["pnx"]["display"]["creator"]),
+      "creator"             => result["pnx"]["addata"]["au"],
       "date"                => parse_field(result["pnx"]["addata"]["date"]),
       "description"         => parse_field(result["pnx"]["display"]["description"]),
       "direct_url"          => nil,
@@ -110,7 +109,7 @@ defmodule SorinPrimo do
       "rights"              => nil,
       "series"              => parse_field(result["pnx"]["addata"]["seriestitle"]),
       "source"              => "Primo (new Search API)",
-      "subject"             => parse_string(result["pnx"]["display"]["subject"]),
+      "subject"             => result["pnx"]["display"]["subject"],
       "sublocation"         => result["delivery"]["bestlocation"]["subLocation"],
       "title"               => parse_field(result["pnx"]["display"]["title"]),
       "type"                => parse_field(result["pnx"]["display"]["type"]),
@@ -133,20 +132,6 @@ defmodule SorinPrimo do
   """
   def parse_field(field) do
     if(field, do: field |> Enum.at(-1))
-  end
-
-  @doc """
-  Helper function for selecting, formatting, and returning the first string
-  from a specified field.
-
-  """
-  def parse_string(field) do
-    if field do
-      field
-      |> List.first()
-      |> String.split(";", trim: true)
-      |> Enum.map(&String.trim(&1))
-    end
   end
 
   ###################################
