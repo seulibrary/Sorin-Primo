@@ -29,7 +29,7 @@ defmodule SorinPrimo do
       |> Enum.join("%7C%2C%7C")
 
     response =
-      "#{Application.get_env(:sorin_primo, :api_gateway_url)}/v1/search?" <>
+      "#{Application.get_env(:sorin_primo, :primo_url)}/v1/search?" <>
       "inst=#{Application.get_env(:sorin_primo, :inst)}" <>
       "&vid=#{Application.get_env(:sorin_primo, :vid)}" <>
       "&tab=#{Application.get_env(:sorin_primo, :tab)}" <>
