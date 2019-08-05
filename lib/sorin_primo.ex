@@ -35,8 +35,9 @@ defmodule SorinPrimo do
       "&tab=#{Application.get_env(:sorin_primo, :tab)}" <>
       "&scope=#{Application.get_env(:sorin_primo, :scope)}"<>
       "&q=#{filters["search_by"] || "any"},contains,#{encoded_search_string}" <>
-      "&newspapersActive=true" <>
-      "&newspapersSearch=#{Application.get_env(:sorin_primo, :newspapers_search)}" <>
+    (if (filters["item_type"] == "newspapers"), do:
+      "&newspapersActive=true&newspapersSearch=true",
+	else: "" ) <>
       "&apikey=#{Application.get_env(:sorin_primo, :api_key)}" <>
       "&lang=#{Application.get_env(:sorin_primo, :lang)}" <>
       "&pcAvailability=false" <>
