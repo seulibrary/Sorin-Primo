@@ -28,7 +28,7 @@ defmodule SorinPrimo do
       |> Enum.join("%7C%2C%7C")
 
     response =
-      "#{Application.get_env(:sorin_primo, :api_gateway_url)}/v1/search?" <>
+      "#{Application.get_env(:sorin_primo, :primo_url)}/v1/search?" <>
       "inst=#{Application.get_env(:sorin_primo, :inst)}" <>
       "&vid=#{Application.get_env(:sorin_primo, :vid)}" <>
       "&tab=#{Application.get_env(:sorin_primo, :tab)}" <>
@@ -36,7 +36,7 @@ defmodule SorinPrimo do
       "&q=#{filters["search_by"] || "any"},contains,#{encoded_search_string}" <>
       "&newspapersActive=true" <>
       "&newspapersSearch=#{Application.get_env(:sorin_primo, :newspapers_search)}" <>
-      "&apikey=#{Application.get_env(:sorin_primo, :api_key)}" <>
+      "&apikey=#{System.get_env("PRIMO_API_KEY")}" <>
       "&lang=#{Application.get_env(:sorin_primo, :lang)}" <>
       "&pcAvailability=false" <>
       "&offset=#{offset}" <>
