@@ -1,5 +1,4 @@
 defmodule SorinPrimo do
-
   @doc """
   High-level function for querying Primo's Brief Search API.
 
