@@ -109,7 +109,7 @@ defmodule SorinPrimo do
       "rights"              => nil,
       "series"              => parse_field(result["pnx"]["addata"]["seriestitle"]),
       "source"              => "Primo (new Search API)",
-      "subject"             => parse_string(result["pnx"]["display"]["subject"]),
+      "subject"             => result["pnx"]["display"]["subject"],
       "sublocation"         => result["delivery"]["bestlocation"]["subLocation"],
       "title"               => parse_field(result["pnx"]["display"]["title"]),
       "type"                => parse_field(result["pnx"]["display"]["type"]),
