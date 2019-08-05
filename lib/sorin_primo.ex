@@ -37,7 +37,7 @@ defmodule SorinPrimo do
       "&q=#{filters["search_by"] || "any"},contains,#{encoded_search_string}" <>
       "&newspapersActive=true" <>
       "&newspapersSearch=#{Application.get_env(:sorin_primo, :newspapers_search)}" <>
-      "&apikey=#{Application.get_env(:sorin_primo, :api_key)}" <>
+      "&apikey=#{System.get_env("PRIMO_API_KEY")}" <>
       "&lang=#{Application.get_env(:sorin_primo, :lang)}" <>
       "&pcAvailability=false" <>
       "&offset=#{offset}" <>
