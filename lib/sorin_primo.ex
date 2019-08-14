@@ -172,21 +172,24 @@ defmodule SorinPrimo do
     api_variable = if custom_api_parameter[:variable], do: custom_api_parameter[:variable], else: nil
 
     case {key, value} do
-      {key, true} when key === api_variable ->
-        IO.inspect ("first " <> key)
+      {key, "true"} when key === api_variable ->
         custom_api_parameter[:api_parameter]
-      {key, value} when key === api_variable and value != "" ->
-        IO.inspect ("second")
+      {key, value} when key === api_variable and value != "" and value != "false" ->
+        # "false" values do not mean "do not include", false is just the reverse of true, 
+        # and is what the FE sends. This might have to be re-visited in the future depending
+        # on other filter functionality
         custom_api_parameter[:api_parameter] |> String.replace("$VALUE", value)
       {"publish_date", dates} ->
-      # If the default values are passed in, do not apply the filter
-      if dates[custom_api_parameter[:min_variable]] === custom_api_parameter[:min_value] and dates[custom_api_parameter[:max_variable]] === custom_api_parameter[:max_value] do
-        nil
-      else
-        "facet_searchcreationdate,include," <>
-          "%5B#{dates[custom_api_parameter[:min_variable]]}" <>
-          "%20TO%20#{dates[custom_api_parameter[:max_variable]]}%5D"
-      end
+        # If the default values are passed in, do not apply the filter
+        parsed_dates = String.split(dates, ",")
+        
+        if String.to_integer(List.first(parsed_dates)) === custom_api_parameter[:min_value] and String.to_integer(List.last(parsed_dates)) === custom_api_parameter[:max_value] do
+          nil
+        else
+          "facet_searchcreationdate,include," <>
+          "%5B#{List.first(parsed_dates)}" <>
+          "%20TO%20#{List.last(parsed_dates)}%5D"
+        end
       {_, _} -> nil
     end
   end
