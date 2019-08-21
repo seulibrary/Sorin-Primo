@@ -174,6 +174,8 @@ defmodule SorinPrimo do
     case {key, value} do
       {key, "true"} when key === api_variable ->
         custom_api_parameter[:api_parameter]
+      {key, value} when key === "item_type" and value != "newspapers" -> 
+        custom_api_parameter[:api_parameter] |> String.replace("$VALUE", value)
       {key, value} when key === api_variable and value != "" and value != "false" ->
         # "false" values do not mean "do not include", false is just the reverse of true, 
         # and is what the FE sends. This might have to be re-visited in the future depending
