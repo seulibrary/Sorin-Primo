@@ -75,13 +75,25 @@ defmodule SorinPrimo do
     #       "availability_status" and "sublocation" are mapped for display in
     #       search results, but are not part of the Resource schema.
     #
+    doc_id =
+      case parse_field(result["pnx"]["display"]["type"]) do
+	"newspaper_article" ->
+	  "BM_" <> parse_field(result["pnx"]["control"]["addsrcrecordid"])
+	_ -> parse_field(result["pnx"]["control"]["recordid"])
+      end
+
+    full_display =
+      case parse_field(result["pnx"]["display"]["type"]) do
+	"newspaper_article" ->
+	  "npfulldisplay?docid=#{doc_id}"
+	_ -> "fulldisplay?docid=#{doc_id}"
+      end
+
     catalog_url =
       "#{Application.get_env(:sorin_primo, :catalog_url_root)}" <>
-      "fulldisplay?docid=#{result["pnx"]["control"]["recordid"]}" <>
+      full_display <>
       "&context=#{result["context"]}" <>
       "&vid=#{Application.get_env(:sorin_primo, :vid)}" <>
-      "&search_scope=#{Application.get_env(:sorin_primo, :scope)}" <>
-      "&tab=#{Application.get_env(:sorin_primo, :tab)}" <>
       "&lang=#{Application.get_env(:sorin_primo, :lang)}"
 
     %{
@@ -97,7 +109,7 @@ defmodule SorinPrimo do
       "doi"                 => parse_field(result["pnx"]["addata"]["doi"]),
       "ext_collection"      => parse_field(result["pnx"]["facets"]["collection"]),
       "format"              => parse_field(result["pnx"]["display"]["format"]),
-      "identifier"          => parse_field(result["pnx"]["control"]["recordid"]),
+      "identifier"          => doc_id,
       "is_part_of"          => parse_field(result["pnx"]["display"]["ispartof"]),
       "issue"               => parse_field(result["pnx"]["addata"]["issue"]),
       "journal"             => parse_field(result["pnx"]["addata"]["jtitle"]),
