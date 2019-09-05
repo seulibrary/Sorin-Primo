@@ -25,6 +25,7 @@ defmodule SorinPrimo do
       filters
       |> Enum.map(fn {k, v} -> parse_filter(k, v) end)
       |> Enum.filter(& !is_nil(&1))
+      |> Enum.filter(fn x -> x != "" end)
       |> Enum.join("%7C%2C%7C")
 
     response =
