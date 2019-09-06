@@ -151,11 +151,9 @@ defmodule SorinPrimo do
     Jason.decode!(body)
   end
 
-  @doc """
-  Helper function for returning the last value in a specified field.
-
-  """
-  def parse_field(field) do
+  defp parse_field(field) do
+    # Primo returns most of its values wrapped up in a list; this
+    # function extracts the value we want from the list.
     if(field, do: field |> Enum.at(-1))
   end
 
