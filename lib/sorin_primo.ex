@@ -74,21 +74,25 @@ defmodule SorinPrimo do
     end
   end
 
-  @doc """
-  Maps fields from Primo's Brief Search API results to maps with the same
-  fields as a Resource struct.
-
-  """
-  def build_resource_map(result) do
+  defp build_resource_map(result) do
+    # Extracts fields from Primo's Brief Search API results and uses them
+    # to construct a map formatted for rendering as a Core.Resources.Resource.
     #
-    # NOTE: "coverage", "relation", "direct_url", and "rights" are mapped to
-    #       nil because they are not returned by Primo, but should be returned
-    #       to the outer Search module to keep it generic.
+    # NOTES:
     #
-    #       "availability_status" and "sublocation" are mapped for display in
-    #       search results, but are not part of the Resource schema.
+    # - "coverage", "relation", "direct_url", and "rights" are mapped to nil
+    #   because although they are not returned by Primo, they should still be
+    #   returned in order to keep the outer Search module generic across
+    #   catalogs.
     #
-    doc_id =
+    # - "availability_status" and "sublocation" are returned for display in
+    #   search results for the convenience of end users, but are not part of
+    #   the Resource schema.
+    #
+    # - "identifier" and "catalog_url" have to be populated differently for
+    #   newspaper articles and all other resources.
+    #
+    identifier =
       case parse_field(result["pnx"]["display"]["type"]) do
 	"newspaper_article" ->
 	  "BM_" <> parse_field(result["pnx"]["control"]["addsrcrecordid"])
@@ -98,8 +102,8 @@ defmodule SorinPrimo do
     full_display =
       case parse_field(result["pnx"]["display"]["type"]) do
 	"newspaper_article" ->
-	  "npfulldisplay?docid=#{doc_id}"
-	_ -> "fulldisplay?docid=#{doc_id}"
+	  "npfulldisplay?docid=#{identifier}"
+	_ -> "fulldisplay?docid=#{identifier}"
       end
 
     catalog_url =
@@ -122,7 +126,7 @@ defmodule SorinPrimo do
       "doi"                 => parse_field(result["pnx"]["addata"]["doi"]),
       "ext_collection"      => parse_field(result["pnx"]["facets"]["collection"]),
       "format"              => parse_field(result["pnx"]["display"]["format"]),
-      "identifier"          => doc_id,
+      "identifier"          => identifier,
       "is_part_of"          => parse_field(result["pnx"]["display"]["ispartof"]),
       "issue"               => parse_field(result["pnx"]["addata"]["issue"]),
       "journal"             => parse_field(result["pnx"]["addata"]["jtitle"]),
