@@ -19,7 +19,7 @@ defmodule SorinPrimo do
   """
   def search(search_string, limit, offset, filters) do
     encoded_search_string =
-      search_string |> String.trim() |> URI.encode()
+      search_string |> String.trim() |> URI.encode_www_form()
 
     parsed_filters =
       filters
