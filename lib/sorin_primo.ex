@@ -61,12 +61,25 @@ defmodule SorinPrimo do
     %{num_results: num_results, results: results}
   end
 
+  defp parse(result) do
+    # If the result is either not a newspaper article or is one and
+    # has the right unique ID field for newspapers populated, passes
+    # the result to build_resource/1. Otherwise returns an empty map.
+    resource_type = result["pnx"]["display"]["type"] |> Enum.at(-1)
+    has_newspaper_id = result["pnx"]["control"]["addsrcrecordid"]
+    cond do
+      (resource_type != "newspaper_article") || has_newspaper_id ->
+	build_resource_map(result)
+      true -> %{}
+    end
+  end
+
   @doc """
   Maps fields from Primo's Brief Search API results to maps with the same
   fields as a Resource struct.
 
   """
-  def parse(result) do
+  def build_resource_map(result) do
     #
     # NOTE: "coverage", "relation", "direct_url", and "rights" are mapped to
     #       nil because they are not returned by Primo, but should be returned
