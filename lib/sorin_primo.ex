@@ -38,7 +38,7 @@ defmodule SorinPrimo do
       "&apikey=#{Application.get_env(:sorin_primo, :api_key)}" <>
     (if (filters["item_type"] == "newspapers"), do:
       "&newspapersActive=true&newspapersSearch=true",
-	else: "" ) <>
+	else: "&newspapersActive=true&newspapersSearch=false" ) <>
       "&lang=#{Application.get_env(:sorin_primo, :lang)}" <>
       "&pcAvailability=false" <>
       "&offset=#{offset}" <>
@@ -62,21 +62,38 @@ defmodule SorinPrimo do
     %{num_results: num_results, results: results}
   end
 
-  @doc """
-  Maps fields from Primo's Brief Search API results to maps with the same
-  fields as a Resource struct.
+  defp parse(result) do
+    # If the result is either not a newspaper article or is one and
+    # has the right unique ID field for newspapers populated, passes
+    # the result to build_resource/1. Otherwise returns an empty map.
+    resource_type = result["pnx"]["display"]["type"] |> Enum.at(-1)
+    has_newspaper_id = result["pnx"]["control"]["addsrcrecordid"]
+    cond do
+      (resource_type != "newspaper_article") || has_newspaper_id ->
+	build_resource_map(result)
+      true -> %{}
+    end
+  end
 
-  """
-  def parse(result) do
+  defp build_resource_map(result) do
+    # Extracts fields from Primo's Brief Search API results and uses them
+    # to construct a map formatted for rendering as a Core.Resources.Resource.
     #
-    # NOTE: "coverage", "relation", "direct_url", and "rights" are mapped to
-    #       nil because they are not returned by Primo, but should be returned
-    #       to the outer Search module to keep it generic.
+    # NOTES:
     #
-    #       "availability_status" and "sublocation" are mapped for display in
-    #       search results, but are not part of the Resource schema.
+    # - "coverage", "relation", "direct_url", and "rights" are mapped to nil
+    #   because although they are not returned by Primo, they should still be
+    #   returned in order to keep the outer Search module generic across
+    #   catalogs.
     #
-    doc_id =
+    # - "availability_status" and "sublocation" are returned for display in
+    #   search results for the convenience of end users, but are not part of
+    #   the Resource schema.
+    #
+    # - "identifier" and "catalog_url" have to be populated differently for
+    #   newspaper articles and all other resources.
+    #
+    identifier =
       case parse_field(result["pnx"]["display"]["type"]) do
 	"newspaper_article" ->
 	  "BM_" <> parse_field(result["pnx"]["control"]["addsrcrecordid"])
@@ -86,8 +103,8 @@ defmodule SorinPrimo do
     full_display =
       case parse_field(result["pnx"]["display"]["type"]) do
 	"newspaper_article" ->
-	  "npfulldisplay?docid=#{doc_id}"
-	_ -> "fulldisplay?docid=#{doc_id}"
+	  "npfulldisplay?docid=#{identifier}"
+	_ -> "fulldisplay?docid=#{identifier}"
       end
 
     catalog_url =
@@ -110,7 +127,7 @@ defmodule SorinPrimo do
       "doi"                 => parse_field(result["pnx"]["addata"]["doi"]),
       "ext_collection"      => parse_field(result["pnx"]["facets"]["collection"]),
       "format"              => parse_field(result["pnx"]["display"]["format"]),
-      "identifier"          => doc_id,
+      "identifier"          => identifier,
       "is_part_of"          => parse_field(result["pnx"]["display"]["ispartof"]),
       "issue"               => parse_field(result["pnx"]["addata"]["issue"]),
       "journal"             => parse_field(result["pnx"]["addata"]["jtitle"]),
@@ -131,20 +148,13 @@ defmodule SorinPrimo do
     }
   end
 
-  @doc """
-  Helper function for parsing the JSON results of a Primo Brief Search API
-  request.
-
-  """
-  def handle_request({:ok, %{status_code: 200, body: body}}) do
+  defp handle_request({:ok, %{status_code: 200, body: body}}) do
     Jason.decode!(body)
   end
 
-  @doc """
-  Helper function for returning the last value in a specified field.
-
-  """
-  def parse_field(field) do
+  defp parse_field(field) do
+    # Primo returns most of its values wrapped up in a list; this
+    # function extracts the value we want from the list.
     if(field, do: field |> Enum.at(-1))
   end
 
