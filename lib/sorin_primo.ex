@@ -147,12 +147,7 @@ defmodule SorinPrimo do
     }
   end
 
-  @doc """
-  Helper function for parsing the JSON results of a Primo Brief Search API
-  request.
-
-  """
-  def handle_request({:ok, %{status_code: 200, body: body}}) do
+  defp handle_request({:ok, %{status_code: 200, body: body}}) do
     Jason.decode!(body)
   end
 
