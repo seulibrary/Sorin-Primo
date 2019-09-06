@@ -37,7 +37,7 @@ defmodule SorinPrimo do
       "&apikey=#{Application.get_env(:sorin_primo, :api_key)}" <>
     (if (filters["item_type"] == "newspapers"), do:
       "&newspapersActive=true&newspapersSearch=true",
-	else: "" ) <>
+	else: "&newspapersActive=true&newspapersSearch=false" ) <>
       "&lang=#{Application.get_env(:sorin_primo, :lang)}" <>
       "&pcAvailability=false" <>
       "&offset=#{offset}" <>
