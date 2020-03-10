@@ -46,7 +46,7 @@ defmodule SorinPrimo do
       "&qInclude=#{parsed_filters}" <>
     (if filters["sort_by"], do: "&sort=#{filters["sort_by"]}", else: "") <>
       "&blendFacetsSeparately=true"
-    |> HTTPoison.get([], [timeout: 15_000, recv_timeout: 15_000])
+    |> HTTPoison.get([], timeout: 15_000, recv_timeout: 15_000)
     |> handle_request()
 
     num_results =
